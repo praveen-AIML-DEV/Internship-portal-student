@@ -1,0 +1,196 @@
+﻿{% extends 'base.html' %}
+{% block title %}Sign In & Register | Smart Academia-Industry Portal{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-6">
+        <!-- Brand Header -->
+        <div class="text-center">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-600 text-white flex items-center justify-center mx-auto text-xl shadow-lg shadow-indigo-200">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <h2 class="mt-4 text-2xl font-extrabold text-slate-900">Portal Access</h2>
+            <p class="mt-1 text-xs text-slate-500">Sign in to your account or launch a quick demo session</p>
+        </div>
+
+        <!-- 1-Click Quick Demo Sign-in Box -->
+        <div class="bg-indigo-50/70 border border-indigo-200/80 rounded-2xl p-4 shadow-sm">
+            <div class="flex items-center justify-between mb-2.5">
+                <span class="text-xs font-bold text-indigo-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-bolt text-indigo-600"></i> Instant Demo Login
+                </span>
+                <span class="text-[10px] text-indigo-600 font-semibold bg-indigo-100 px-2 py-0.5 rounded-full">Zero password needed</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <a href="{{ url_for('auth.switch_role', target_role='student') }}" class="p-2 rounded-xl bg-white border border-indigo-200 text-xs font-semibold text-slate-800 hover:bg-indigo-600 hover:text-white transition flex items-center gap-2 shadow-xs">
+                    <i class="fa-solid fa-user-graduate text-indigo-500"></i>
+                    <span>Student Demo</span>
+                </a>
+                <a href="{{ url_for('auth.switch_role', target_role='company') }}" class="p-2 rounded-xl bg-white border border-indigo-200 text-xs font-semibold text-slate-800 hover:bg-blue-600 hover:text-white transition flex items-center gap-2 shadow-xs">
+                    <i class="fa-solid fa-building text-blue-500"></i>
+                    <span>Company Demo</span>
+                </a>
+                <a href="{{ url_for('auth.switch_role', target_role='college') }}" class="p-2 rounded-xl bg-white border border-indigo-200 text-xs font-semibold text-slate-800 hover:bg-emerald-600 hover:text-white transition flex items-center gap-2 shadow-xs">
+                    <i class="fa-solid fa-university text-emerald-500"></i>
+                    <span>College Demo</span>
+                </a>
+                <a href="{{ url_for('auth.switch_role', target_role='admin') }}" class="p-2 rounded-xl bg-white border border-indigo-200 text-xs font-semibold text-slate-800 hover:bg-purple-600 hover:text-white transition flex items-center gap-2 shadow-xs">
+                    <i class="fa-solid fa-shield-halved text-purple-500"></i>
+                    <span>Admin Demo</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Tab Selector: Login vs Register -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <div class="flex border-b border-slate-200 mb-5">
+                <button id="tabLoginBtn" onclick="switchAuthTab('login')" class="flex-1 pb-3 text-sm font-bold border-b-2 border-indigo-600 text-indigo-600 text-center transition">
+                    Sign In
+                </button>
+                <button id="tabRegisterBtn" onclick="switchAuthTab('register')" class="flex-1 pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-700 text-center transition">
+                    Create Account
+                </button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <form id="loginForm" action="{{ url_for('auth.login') }}" method="POST" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-xs"><i class="fa-solid fa-envelope"></i></span>
+                        <input type="email" name="email" required placeholder="e.g. student@demo.edu" class="w-full pl-9 pr-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" value="{{ email if email else '' }}">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-xs"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" name="password" required placeholder="Enter password" class="w-full pl-9 pr-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between text-xs">
+                    <span class="text-slate-400">Default password: password123</span>
+                </div>
+
+                <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition shadow-md shadow-indigo-200">
+                    Sign In to Portal
+                </button>
+            </form>
+
+            <!-- REGISTER FORM -->
+            <form id="registerForm" action="{{ url_for('auth.register') }}" method="POST" class="space-y-4 hidden">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Select Your Role</label>
+                    <select name="role" id="roleSelector" onchange="toggleRoleFields()" class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                        <option value="student">Student</option>
+                        <option value="company">Company / Industry</option>
+                        <option value="college">College / Academician</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label id="nameLabel" class="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
+                    <input type="text" name="name" id="nameInput" required placeholder="e.g. John Doe" class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
+                    <input type="email" name="email" required placeholder="name@domain.com" class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+                    <input type="password" name="password" required placeholder="Create secure password" class="w-full px-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                </div>
+
+                <!-- Student specific fields -->
+                <div id="studentFields" class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Degree</label>
+                        <input type="text" name="degree" value="B.Tech" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Branch</label>
+                        <input type="text" name="branch" value="Computer Science" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl">
+                    </div>
+                </div>
+
+                <!-- Company specific fields -->
+                <div id="companyFields" class="hidden space-y-2">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Industry Sector</label>
+                        <input type="text" name="industry_type" placeholder="e.g. Cloud & AI Services" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl">
+                    </div>
+                </div>
+
+                <!-- College specific fields -->
+                <div id="collegeFields" class="hidden space-y-2">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Institutional Code</label>
+                        <input type="text" name="code" placeholder="e.g. INST-BLR-01" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition shadow-md shadow-indigo-200">
+                    Register Account
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function switchAuthTab(tab) {
+    const loginForm = document.getElementById('loginForm');
+    const regForm = document.getElementById('registerForm');
+    const tabLogin = document.getElementById('tabLoginBtn');
+    const tabReg = document.getElementById('tabRegisterBtn');
+
+    if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        regForm.classList.add('hidden');
+        tabLogin.className = 'flex-1 pb-3 text-sm font-bold border-b-2 border-indigo-600 text-indigo-600 text-center transition';
+        tabReg.className = 'flex-1 pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-700 text-center transition';
+    } else {
+        loginForm.classList.add('hidden');
+        regForm.classList.remove('hidden');
+        tabReg.className = 'flex-1 pb-3 text-sm font-bold border-b-2 border-indigo-600 text-indigo-600 text-center transition';
+        tabLogin.className = 'flex-1 pb-3 text-sm font-semibold border-b-2 border-transparent text-slate-400 hover:text-slate-700 text-center transition';
+    }
+}
+
+function toggleRoleFields() {
+    const role = document.getElementById('roleSelector').value;
+    const nameLabel = document.getElementById('nameLabel');
+    const nameInput = document.getElementById('nameInput');
+    const stuFields = document.getElementById('studentFields');
+    const compFields = document.getElementById('companyFields');
+    const colFields = document.getElementById('collegeFields');
+
+    stuFields.classList.add('hidden');
+    compFields.classList.add('hidden');
+    colFields.classList.add('hidden');
+
+    if (role === 'student') {
+        nameLabel.innerText = 'Full Name';
+        nameInput.placeholder = 'e.g. John Doe';
+        stuFields.classList.remove('hidden');
+    } else if (role === 'company') {
+        nameLabel.innerText = 'Company Name';
+        nameInput.placeholder = 'e.g. TechCorp Solutions';
+        compFields.classList.remove('hidden');
+    } else if (role === 'college') {
+        nameLabel.innerText = 'College / University Name';
+        nameInput.placeholder = 'e.g. National Institute of Technology';
+        colFields.classList.remove('hidden');
+    }
+}
+
+// Auto open register tab if URL has #register
+if (window.location.hash === '#register') {
+    switchAuthTab('register');
+}
+</script>
+{% endblock %}

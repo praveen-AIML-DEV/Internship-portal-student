@@ -1,0 +1,150 @@
+﻿<!-- FLOATING AI CAREER ADVISOR WIDGET -->
+<div id="aiAdvisorWidget" class="fixed bottom-6 right-6 z-50">
+    <!-- Floating Spark Trigger Button -->
+    <button id="aiAdvisorToggleBtn" onclick="toggleAIChat()" class="flex items-center gap-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-xs shadow-xl shadow-indigo-300 transform hover:scale-105 transition-all duration-200 border border-white/20">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+        <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+        <span>Ask AI Advisor</span>
+    </button>
+
+    <!-- Expanded Chat Window -->
+    <div id="aiAdvisorChatWindow" class="hidden absolute bottom-14 right-0 w-96 sm:w-[420px] bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-[520px] transition-all duration-300">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-4 text-white flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center text-sm shadow-inner">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+                <div>
+                    <h3 class="text-xs font-black">EduConnect AI Career Advisor</h3>
+                    <p class="text-[10px] text-indigo-300 font-medium">LLM-Powered Placement Intelligence</p>
+                </div>
+            </div>
+            <button onclick="toggleAIChat()" class="text-slate-400 hover:text-white p-1">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+        </div>
+
+        <!-- Suggestion Chips Bar -->
+        <div class="bg-indigo-50/70 p-2.5 border-b border-indigo-100 flex items-center gap-1.5 overflow-x-auto text-[10px] no-scrollbar">
+            <button onclick="sendAIChatPrompt('What are my skill gaps?')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-white border border-indigo-200 text-indigo-800 font-semibold hover:bg-indigo-600 hover:text-white transition">
+                ⚡ My Skill Gaps
+            </button>
+            <button onclick="sendAIChatPrompt('Generate a 4-week roadmap for Cloud Computing')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-white border border-indigo-200 text-indigo-800 font-semibold hover:bg-indigo-600 hover:text-white transition">
+                🗺️ Cloud Roadmap
+            </button>
+            <button onclick="sendAIChatPrompt('What questions will recruiters ask in interviews?')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-white border border-indigo-200 text-indigo-800 font-semibold hover:bg-indigo-600 hover:text-white transition">
+                🎯 Interview Prep
+            </button>
+            <button onclick="sendAIChatPrompt('How to boost my placement readiness score?')" class="whitespace-nowrap px-2.5 py-1 rounded-full bg-white border border-indigo-200 text-indigo-800 font-semibold hover:bg-indigo-600 hover:text-white transition">
+                📈 Placement Readiness
+            </button>
+        </div>
+
+        <!-- Chat Timeline -->
+        <div id="aiChatTimeline" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/50 text-xs">
+            <div class="flex items-start gap-2">
+                <div class="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">
+                    <i class="fa-solid fa-sparkles"></i>
+                </div>
+                <div class="bg-white p-3 rounded-2xl rounded-tl-xs border border-slate-200 text-slate-700 leading-relaxed shadow-xs">
+                    Hello! I am your <strong>AI Career & Placement Advisor</strong>. How can I help you analyze your skill competencies, prepare for interviews, or explore tailored job recommendations today?
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Bar -->
+        <div class="p-3 border-t border-slate-200 bg-white">
+            <form id="aiChatForm" onsubmit="submitAIChatMessage(event)" class="flex items-center gap-2">
+                <input type="text" id="aiChatInput" placeholder="Ask about skills, roadmaps, interviews..." required class="flex-1 px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                <button type="submit" id="aiChatSendBtn" class="p-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition shadow-sm">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleAIChat() {
+    const chatWindow = document.getElementById('aiAdvisorChatWindow');
+    chatWindow.classList.toggle('hidden');
+    if (!chatWindow.classList.contains('hidden')) {
+        document.getElementById('aiChatInput').focus();
+    }
+}
+
+function sendAIChatPrompt(promptText) {
+    document.getElementById('aiChatInput').value = promptText;
+    submitAIChatMessage(new Event('submit'));
+}
+
+async function submitAIChatMessage(e) {
+    e.preventDefault();
+    const input = document.getElementById('aiChatInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    input.value = '';
+    const timeline = document.getElementById('aiChatTimeline');
+
+    // Add user bubble
+    const userDiv = document.createElement('div');
+    userDiv.className = 'flex justify-end';
+    userDiv.innerHTML = `<div class="bg-indigo-600 text-white p-3 rounded-2xl rounded-br-xs max-w-[85%] leading-relaxed shadow-xs">${escapeHtml(msg)}</div>`;
+    timeline.appendChild(userDiv);
+    timeline.scrollTop = timeline.scrollHeight;
+
+    // Add loading placeholder
+    const loaderDiv = document.createElement('div');
+    loaderDiv.className = 'flex items-start gap-2';
+    loaderDiv.id = 'aiChatLoadingPlaceholder';
+    loaderDiv.innerHTML = `
+        <div class="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">
+            <i class="fa-solid fa-sparkles fa-spin"></i>
+        </div>
+        <div class="bg-white p-3 rounded-2xl rounded-tl-xs border border-slate-200 text-slate-500 leading-relaxed shadow-xs italic text-[11px]">
+            AI Advisor is analyzing your career profile...
+        </div>
+    `;
+    timeline.appendChild(loaderDiv);
+    timeline.scrollTop = timeline.scrollHeight;
+
+    try {
+        const res = await fetch('/api/ai/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: msg })
+        });
+        const data = await res.json();
+        document.getElementById('aiChatLoadingPlaceholder')?.remove();
+
+        const botDiv = document.createElement('div');
+        botDiv.className = 'flex items-start gap-2';
+        // Parse basic markdown bold and newlines
+        let formatted = data.reply || 'I am ready to assist with your career planning!';
+        formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        formatted = formatted.replace(/\n/g, '<br>');
+
+        botDiv.innerHTML = `
+            <div class="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center text-[10px] flex-shrink-0 mt-0.5">
+                <i class="fa-solid fa-brain"></i>
+            </div>
+            <div class="bg-white p-3 rounded-2xl rounded-tl-xs border border-slate-200 text-slate-800 leading-relaxed shadow-xs text-xs">
+                ${formatted}
+            </div>
+        `;
+        timeline.appendChild(botDiv);
+        timeline.scrollTop = timeline.scrollHeight;
+    } catch (err) {
+        document.getElementById('aiChatLoadingPlaceholder')?.remove();
+        console.error(err);
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.innerText = text;
+    return div.innerHTML;
+}
+</script>

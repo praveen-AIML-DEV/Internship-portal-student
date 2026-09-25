@@ -1,0 +1,99 @@
+﻿{% extends 'base.html' %}
+{% block title %}Student Roster & Skill Profiles | Smart Academia-Industry Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+        <div>
+            <h1 class="text-2xl font-black text-slate-900">Student Skill Competency Roster</h1>
+            <p class="text-xs text-slate-500">Monitor individual AI assessments, verified strong skills, and curriculum gaps.</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <input type="text" id="studentSearchInput" onkeyup="filterStudentRoster()" placeholder="Search student name, roll no, skill..." class="px-3.5 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-500 w-64 font-medium">
+        </div>
+    </div>
+
+    <!-- Student Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="studentRosterGrid">
+        {% for rec in students %}
+            {% set s = rec.student %}
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between space-y-4 student-card hover:border-emerald-300 transition" data-search="{{ s.full_name|lower }} {{ s.roll_no|lower }} {{ rec.strong_skills|join(' ')|lower }}">
+                <div>
+                    <!-- Top Profile & Readiness -->
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">
+                                {{ s.full_name[0] }}
+                            </div>
+                            <div>
+                                <h3 class="text-sm font-extrabold text-slate-900">{{ s.full_name }}</h3>
+                                <p class="text-[11px] text-slate-500">{{ s.roll_no or 'ID: ' ~ s.id }} &bull; {{ s.branch }}</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-black
+                            {% if rec.status_tag == 'Placement Ready' %}bg-emerald-100 text-emerald-800 border border-emerald-300
+                            {% elif rec.status_tag == 'Needs Training' %}bg-amber-100 text-amber-800 border border-amber-300
+                            {% else %}bg-rose-100 text-rose-800 border border-rose-300{% endif %}">
+                            {{ rec.readiness }}%
+                        </span>
+                    </div>
+
+                    <div class="mt-3 text-xs text-slate-600">
+                        <p><span class="text-slate-400">Target Career:</span> <strong>{{ s.target_career }}</strong> &bull; CGPA: <strong>{{ s.cgpa }}</strong></p>
+                    </div>
+
+                    <!-- Strong Skills -->
+                    <div class="mt-3 pt-3 border-t border-slate-100 space-y-1.5">
+                        <div class="flex flex-wrap items-center gap-1 text-[11px]">
+                            <span class="font-bold text-emerald-700">Strong:</span>
+                            {% for sk in rec.strong_skills %}
+                                <span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                    {{ sk }}
+                                </span>
+                            {% else %}
+                                <span class="text-slate-400 text-[10px]">Assessment pending</span>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Missing Skills -->
+                        {% if rec.missing_skills %}
+                            <div class="flex flex-wrap items-center gap-1 text-[11px]">
+                                <span class="font-bold text-rose-600">Skill Gaps:</span>
+                                {% for m in rec.missing_skills %}
+                                    <span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-rose-50 text-rose-800 border border-rose-200">
+                                        {{ m }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-[10px] font-semibold text-slate-400">
+                        {% if rec.assessment_completed %}<i class="fa-solid fa-check text-emerald-500"></i> Evaluated{% else %}Self-declared{% endif %}
+                    </span>
+                    <a href="{{ url_for('student.public_portfolio', slug=s.portfolio_slug) }}" target="_blank" class="font-bold text-emerald-700 hover:underline flex items-center gap-1">
+                        <i class="fa-solid fa-id-card"></i> View Portfolio &rarr;
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function filterStudentRoster() {
+    const term = document.getElementById('studentSearchInput').value.toLowerCase();
+    document.querySelectorAll('.student-card').forEach(card => {
+        const searchVal = card.getAttribute('data-search');
+        if (searchVal.includes(term)) {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+</script>
+{% endblock %}

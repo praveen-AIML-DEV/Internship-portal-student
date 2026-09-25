@@ -1,0 +1,46 @@
+﻿{% extends 'base.html' %}
+{% block title %}Industry Partnerships & FDPs | Smart Academia-Industry Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div class="pb-4 border-b border-slate-200">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-bold mb-2">
+            <i class="fa-solid fa-handshake"></i> Industry-Academia Synergies
+        </div>
+        <h1 class="text-2xl font-black text-slate-900">Corporate Training & Faculty Development Programs</h1>
+        <p class="text-xs text-slate-500">Explore active programs offered by tech employers to address identified skill gaps on campus.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for p in programs %}
+            <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between space-y-4 hover:border-emerald-300 transition">
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="px-2.5 py-0.5 rounded text-[10px] font-bold
+                            {% if p.program_type == 'FDP' %}bg-purple-100 text-purple-800
+                            {% elif p.program_type == 'Workshop' %}bg-blue-100 text-blue-800
+                            {% elif p.program_type == 'Live Project' %}bg-emerald-100 text-emerald-800
+                            {% else %}bg-amber-100 text-amber-800{% endif %}">
+                            {{ p.program_type }}
+                        </span>
+                        <span class="text-[11px] font-bold text-slate-500">{{ p.duration }}</span>
+                    </div>
+
+                    <h3 class="text-base font-extrabold text-slate-900">{{ p.title }}</h3>
+                    <p class="text-xs text-slate-500 font-semibold mt-0.5">Offered by: {{ p.company.company_name if p.company else 'Industry Partner' }}</p>
+                    <p class="text-xs text-slate-600 mt-3 leading-relaxed">{{ p.description }}</p>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 space-y-3">
+                    <p class="text-[11px] text-slate-500"><strong class="text-slate-700">Target Cohort:</strong> {{ p.eligibility }}</p>
+                    {% if p.registration_link %}
+                        <a href="{{ p.registration_link }}" target="_blank" class="block w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs text-center border border-emerald-200 transition">
+                            Enroll Students / Faculty &rarr;
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

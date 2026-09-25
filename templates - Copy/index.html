@@ -1,0 +1,335 @@
+﻿{% extends 'base.html' %}
+{% block title %}Smart Academia–Industry Collaboration Portal | Home{% endblock %}
+
+{% block content %}
+<!-- HERO SECTION -->
+<section class="relative overflow-hidden pt-12 pb-20 bg-gradient-to-b from-indigo-50/50 via-white to-slate-50 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto">
+            <!-- Smart Automation Pill -->
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-100 text-indigo-800 text-xs font-semibold mb-6 border border-indigo-200 shadow-sm">
+                <span class="w-2 h-2 rounded-full bg-indigo-600 animate-ping"></span>
+                Theme: Smart Automation &bull; Academia–Industry Synergy
+            </div>
+            
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 leading-tight">
+                Bridging Academic Learning & <span class="bg-gradient-to-r from-indigo-600 via-violet-600 to-blue-600 bg-clip-text text-transparent">Industry Competency</span>
+            </h1>
+            
+            <p class="mt-6 text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
+                A centralized, intelligent collaboration platform connecting <span class="font-semibold text-slate-800">Students</span>, <span class="font-semibold text-slate-800">Industries</span>, and <span class="font-semibold text-slate-800">Institutions</span>. Automated skill assessment, transparent AI job matching, and real-time curriculum demand analytics.
+            </p>
+
+            <!-- CTA Role Buttons -->
+            <div class="mt-10 flex flex-wrap justify-center gap-4">
+                <a href="{{ url_for('auth.switch_role', target_role='student') }}" class="px-6 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-lg shadow-indigo-200 transition transform hover:-translate-y-0.5 flex items-center gap-2">
+                    <i class="fa-solid fa-user-graduate"></i> Enter Student Portal
+                </a>
+                <a href="{{ url_for('auth.switch_role', target_role='company') }}" class="px-6 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold shadow-lg shadow-slate-300 transition transform hover:-translate-y-0.5 flex items-center gap-2">
+                    <i class="fa-solid fa-building"></i> Enter Company Portal
+                </a>
+                <a href="{{ url_for('auth.switch_role', target_role='college') }}" class="px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-lg shadow-emerald-200 transition transform hover:-translate-y-0.5 flex items-center gap-2">
+                    <i class="fa-solid fa-university"></i> College Analytics
+                </a>
+            </div>
+
+            <!-- Key Proof Points -->
+            <div class="mt-12 pt-8 border-t border-slate-200/80 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+                <div class="p-3">
+                    <p class="text-3xl font-extrabold text-indigo-600">{{ total_students }}+</p>
+                    <p class="text-xs text-slate-500 font-medium mt-1">Registered Students</p>
+                </div>
+                <div class="p-3">
+                    <p class="text-3xl font-extrabold text-blue-600">{{ total_companies }}+</p>
+                    <p class="text-xs text-slate-500 font-medium mt-1">Industry Partners</p>
+                </div>
+                <div class="p-3">
+                    <p class="text-3xl font-extrabold text-emerald-600">{{ total_jobs }}+</p>
+                    <p class="text-xs text-slate-500 font-medium mt-1">Jobs & Internships</p>
+                </div>
+                <div class="p-3">
+                    <p class="text-3xl font-extrabold text-purple-600">{{ total_skills }}+</p>
+                    <p class="text-xs text-slate-500 font-medium mt-1">Mapped Skill Stacks</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FOUR MAJOR ROLES SECTION -->
+<section class="py-16 bg-white" id="roles">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+            <h2 class="text-xs font-bold text-indigo-600 tracking-widest uppercase">Multi-Stakeholder Architecture</h2>
+            <p class="mt-2 text-3xl font-extrabold text-slate-900">Tailored Experiences for Each Role</p>
+            <p class="mt-3 text-slate-600 text-sm">Every stakeholder has dedicated automated workflows and intelligent tools.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Role 1: Student -->
+            <div class="glass-card p-6 border-t-4 border-t-indigo-600 flex flex-col justify-between hover:shadow-lg transition">
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl mb-4 font-bold">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900">1. Student</h3>
+                    <p class="text-xs text-slate-500 mt-1 mb-4">Empowering students with AI assessments, transparent job matches, and digital portfolios.</p>
+                    <ul class="text-xs text-slate-600 space-y-2 mb-6">
+                        <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-indigo-600"></i> AI Skill Assessment & Scoring</li>
+                        <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-indigo-600"></i> Skill-Gap Identification</li>
+                        <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-indigo-600"></i> Ranked Job & Internship Fits</li>
+                        <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-indigo-600"></i> Public Shareable Portfolio</li>
+                    </ul>
+                </div>
+                <a href="{{ url_for('auth.switch_role', target_role='student') }}" class="w-full py-2.5 px-4 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-xs text-center transition flex items-center justify-center gap-1">
+                    Try Student Demo <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </a>
+            </div>
+
+            <!-- Role 2: Company -->
+            <div class="glass-card p-6 border-t-4 border-t-blue-600 flex flex-col justify-between hover:shadow-lg transition">
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl mb-4 font-bold">
+                        <i class="fa-solid fa-building"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900">2. Company / Industry</h3>
+                    <p class="text-xs text-slate-500 mt-1 mb-4">Hire top candidates based on actual verified skills rather than pedigree alone.</p>
+                    <ul class="text-xs text-slate-600 space-y-2 mb-6">
+                        <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-blue-600"></i> Post Jobs, Internships, FDPs</li>
+                        <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-blue-600"></i> Automated Candidate Match %</li>
+                        <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-blue-600"></i> Matched vs Missing Skill view</li>
+                        <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-blue-600"></i> Application Status Pipeline</li>
+                    </ul>
+                </div>
+                <a href="{{ url_for('auth.switch_role', target_role='company') }}" class="w-full py-2.5 px-4 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold text-xs text-center transition flex items-center justify-center gap-1">
+                    Try Company Demo <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </a>
+            </div>
+
+            <!-- Role 3: College -->
+            <div class="glass-card p-6 border-t-4 border-t-emerald-600 flex flex-col justify-between hover:shadow-lg transition">
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mb-4 font-bold">
+                        <i class="fa-solid fa-university"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900">3. College / Institution</h3>
+                    <p class="text-xs text-slate-500 mt-1 mb-4">Institutional intelligence to align curriculum with dynamic market requirements.</p>
+                    <ul class="text-xs text-slate-600 space-y-2 mb-6">
+                        <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-600"></i> Student Skill Analytics</li>
+                        <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-600"></i> Placement Readiness Cohorts</li>
+                        <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-600"></i> Top Missing Skills Radar</li>
+                        <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-emerald-600"></i> Real-time Industry Demand</li>
+                    </ul>
+                </div>
+                <a href="{{ url_for('auth.switch_role', target_role='college') }}" class="w-full py-2.5 px-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold text-xs text-center transition flex items-center justify-center gap-1">
+                    Try College Demo <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </a>
+            </div>
+
+            <!-- Role 4: Admin -->
+            <div class="glass-card p-6 border-t-4 border-t-purple-600 flex flex-col justify-between hover:shadow-lg transition">
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl mb-4 font-bold">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900">4. Portal Admin</h3>
+                    <p class="text-xs text-slate-500 mt-1 mb-4">Centralized governance, employer verification, and ecosystem analytics.</p>
+                    <ul class="text-xs text-slate-600 space-y-2 mb-6">
+                        <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-purple-600"></i> Company & Student Verification</li>
+                        <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-purple-600"></i> Certificate Authenticity Audit</li>
+                        <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-purple-600"></i> Opportunity Moderation</li>
+                        <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-purple-600"></i> Platform Health Metrics</li>
+                    </ul>
+                </div>
+                <a href="{{ url_for('auth.switch_role', target_role='admin') }}" class="w-full py-2.5 px-4 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold text-xs text-center transition flex items-center justify-center gap-1">
+                    Try Admin Demo <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 6 MEMBER MODULE ARCHITECTURE -->
+<section class="py-16 bg-slate-50 border-t border-slate-200" id="modules">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-2xl mx-auto mb-12">
+            <h2 class="text-xs font-bold text-indigo-600 tracking-widest uppercase">Team Engineering Breakdown</h2>
+            <p class="mt-2 text-3xl font-extrabold text-slate-900">The 6 Modular Components</p>
+            <p class="mt-3 text-slate-600 text-sm">Clean modular architecture connected through RESTful APIs and centralized data models.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Member 1 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold px-2.5 py-1 rounded bg-indigo-50 text-indigo-700">MEMBER 1</span>
+                    <span class="text-xs text-slate-400 font-semibold">Python + Colab</span>
+                </div>
+                <h4 class="font-bold text-slate-900 text-base">AI Skill Assessment</h4>
+                <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                    Evaluates student submissions across Technical, Soft Skills, and Aptitude. Automatically computes readiness scores and identifies Strong, Weak, and Missing skill gaps.
+                </p>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500 font-medium">Standalone Colab Notebook included</span>
+                    <i class="fa-solid fa-code text-indigo-600"></i>
+                </div>
+            </div>
+
+            <!-- Member 2 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold px-2.5 py-1 rounded bg-indigo-50 text-indigo-700">MEMBER 2</span>
+                    <span class="text-xs text-slate-400 font-semibold">HTML + JS + Tailwind</span>
+                </div>
+                <h4 class="font-bold text-slate-900 text-base">Student Portal</h4>
+                <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                    Interactive career portal featuring skill radar charts, automated assessment test-runner, application pipeline tracker, and shareable digital portfolio slugs.
+                </p>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500 font-medium">Digital Portfolio Generator</span>
+                    <i class="fa-solid fa-id-badge text-indigo-600"></i>
+                </div>
+            </div>
+
+            <!-- Member 3 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold px-2.5 py-1 rounded bg-blue-50 text-blue-700">MEMBER 3</span>
+                    <span class="text-xs text-slate-400 font-semibold">HTML + JS + UI</span>
+                </div>
+                <h4 class="font-bold text-slate-900 text-base">Company Hiring Portal</h4>
+                <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                    Employer interface to post jobs/internships with granular skill tags, view candidate rankings by AI match score, and update hiring pipeline stages.
+                </p>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500 font-medium">Candidate Match Rationale</span>
+                    <i class="fa-solid fa-briefcase text-blue-600"></i>
+                </div>
+            </div>
+
+            <!-- Member 4 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold px-2.5 py-1 rounded bg-blue-50 text-blue-700">MEMBER 4</span>
+                    <span class="text-xs text-slate-400 font-semibold">Python Engine</span>
+                </div>
+                <h4 class="font-bold text-slate-900 text-base">AI Job Matching Engine</h4>
+                <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                    Multi-factor transparent scoring engine balancing skill overlap (50%), verified proficiency (25%), degree eligibility (15%), and career interest (10%).
+                </p>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500 font-medium">Matched vs Missing Skills</span>
+                    <i class="fa-solid fa-calculator text-blue-600"></i>
+                </div>
+            </div>
+
+            <!-- Member 5 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold px-2.5 py-1 rounded bg-emerald-50 text-emerald-700">MEMBER 5</span>
+                    <span class="text-xs text-slate-400 font-semibold">HTML + Chart.js</span>
+                </div>
+                <h4 class="font-bold text-slate-900 text-base">College Dashboard</h4>
+                <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                    Institution analytics dashboard presenting student skill distributions, placement-ready cohorts, curriculum gap rankings, and real-time market demand.
+                </p>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500 font-medium">Industry Demand Barometer</span>
+                    <i class="fa-solid fa-chart-column text-emerald-600"></i>
+                </div>
+            </div>
+
+            <!-- Member 6 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-bold px-2.5 py-1 rounded bg-purple-50 text-purple-700">MEMBER 6</span>
+                    <span class="text-xs text-slate-400 font-semibold">Flask + MySQL</span>
+                </div>
+                <h4 class="font-bold text-slate-900 text-base">Backend & Integration</h4>
+                <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                    Flask REST API server, 19 normalized database tables, role-based session security, and dual database support (zero-setup SQLite & MySQL DDL schema).
+                </p>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500 font-medium">Complete REST API Layer</span>
+                    <i class="fa-solid fa-database text-purple-600"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURED OPPORTUNITIES PREVIEW -->
+<section class="py-16 bg-white border-t border-slate-200" id="opportunities">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-10">
+            <div>
+                <h2 class="text-xs font-bold text-indigo-600 tracking-widest uppercase">Live Industry Vacancies</h2>
+                <p class="mt-1 text-2xl font-extrabold text-slate-900">Featured Jobs & Internships</p>
+            </div>
+            <a href="{{ url_for('auth.switch_role', target_role='student') }}" class="mt-4 sm:mt-0 inline-flex items-center text-xs font-bold text-indigo-600 hover:text-indigo-700">
+                View all with AI Match Score <i class="fa-solid fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for j in recent_jobs %}
+                <div class="glass-card p-6 flex flex-col justify-between hover:shadow-md transition">
+                    <div>
+                        <div class="flex items-start justify-between">
+                            <span class="px-2.5 py-1 rounded text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-100">Full-time Job</span>
+                            <span class="text-xs font-bold text-slate-700">{{ j.salary }}</span>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-900 mt-3">{{ j.title }}</h3>
+                        <p class="text-xs text-slate-500 font-medium">{{ j.company.company_name }} &bull; {{ j.location }}</p>
+                        <p class="text-xs text-slate-600 mt-3 line-clamp-2 leading-relaxed">{{ j.description }}</p>
+
+                        <!-- Required skills tags -->
+                        <div class="mt-4 flex flex-wrap gap-1.5">
+                            {% for jrs in j.required_skills %}
+                                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700">
+                                    {{ jrs.skill.name }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-400">Min: {{ j.min_qualification }}</span>
+                        <a href="{{ url_for('auth.switch_role', target_role='student') }}" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs transition">
+                            Apply (Match AI)
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+
+            {% for i in recent_internships %}
+                <div class="glass-card p-6 flex flex-col justify-between hover:shadow-md transition">
+                    <div>
+                        <div class="flex items-start justify-between">
+                            <span class="px-2.5 py-1 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">Internship</span>
+                            <span class="text-xs font-bold text-emerald-700">{{ i.stipend }}</span>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-900 mt-3">{{ i.title }}</h3>
+                        <p class="text-xs text-slate-500 font-medium">{{ i.company.company_name }} &bull; {{ i.location }}</p>
+                        <p class="text-xs text-slate-600 mt-3 line-clamp-2 leading-relaxed">{{ i.description }}</p>
+
+                        <!-- Required skills tags -->
+                        <div class="mt-4 flex flex-wrap gap-1.5">
+                            {% for jrs in i.required_skills %}
+                                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700">
+                                    {{ jrs.skill.name }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                        <span class="text-[11px] text-slate-400">Duration: {{ i.duration_months }} Months</span>
+                        <a href="{{ url_for('auth.switch_role', target_role='student') }}" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition">
+                            Apply (Match AI)
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

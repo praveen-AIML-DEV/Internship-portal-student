@@ -1,0 +1,199 @@
+﻿{% extends 'base.html' %}
+{% block title %}AI Skill Assessment | Smart Academia-Industry Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <!-- Header Banner -->
+    <div class="bg-gradient-to-r from-indigo-900 to-slate-900 rounded-2xl p-6 text-white shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/30 text-indigo-200 text-xs font-semibold mb-2">
+                <i class="fa-solid fa-brain"></i> Member 1: AI Assessment Engine
+            </div>
+            <h1 class="text-2xl font-black">AI-Powered Skill Assessment</h1>
+            <p class="text-xs text-indigo-200 mt-1">Multi-domain evaluation across Technical Competence, Soft Skills, and Analytical Aptitude.</p>
+        </div>
+        <div class="text-right">
+            <span class="text-xs text-indigo-300">Total Questions:</span>
+            <p class="text-2xl font-extrabold text-white">{{ questions|length }} Questions</p>
+        </div>
+    </div>
+
+    <!-- Live Test Runner Card -->
+    <div id="assessmentRunnerCard" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <form id="assessmentForm" onsubmit="submitAssessment(event)">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-800">Adaptive Assessment Questions</h3>
+                    <p class="text-xs text-slate-500">Answer each question carefully. System updates your skill score and gap report automatically.</p>
+                </div>
+                <span class="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-200">
+                    <i class="fa-solid fa-stopwatch mr-1"></i> Self-Paced
+                </span>
+            </div>
+
+            <!-- Questions List -->
+            <div class="space-y-6">
+                {% for q in questions %}
+                    <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/40 question-card" data-qid="{{ q.id }}">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold px-2 py-0.5 rounded bg-indigo-100 text-indigo-800">
+                                Question {{ loop.index }} &bull; {{ q.category }} ({{ q.skill.name if q.skill else 'General' }})
+                            </span>
+                            <span class="text-[11px] font-semibold text-slate-400">{{ q.difficulty }}</span>
+                        </div>
+
+                        <p class="text-sm font-bold text-slate-900 mt-1 mb-3">{{ q.question_text }}</p>
+
+                        <!-- Options Radio Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                            <label class="flex items-center p-3 rounded-lg border border-slate-200 bg-white hover:border-indigo-500 cursor-pointer transition">
+                                <input type="radio" name="q_{{ q.id }}" value="A" class="text-indigo-600 focus:ring-indigo-500 mr-2.5">
+                                <span class="font-medium text-slate-800"><strong class="text-indigo-600 mr-1">A.</strong> {{ q.option_a }}</span>
+                            </label>
+                            <label class="flex items-center p-3 rounded-lg border border-slate-200 bg-white hover:border-indigo-500 cursor-pointer transition">
+                                <input type="radio" name="q_{{ q.id }}" value="B" class="text-indigo-600 focus:ring-indigo-500 mr-2.5">
+                                <span class="font-medium text-slate-800"><strong class="text-indigo-600 mr-1">B.</strong> {{ q.option_b }}</span>
+                            </label>
+                            <label class="flex items-center p-3 rounded-lg border border-slate-200 bg-white hover:border-indigo-500 cursor-pointer transition">
+                                <input type="radio" name="q_{{ q.id }}" value="C" class="text-indigo-600 focus:ring-indigo-500 mr-2.5">
+                                <span class="font-medium text-slate-800"><strong class="text-indigo-600 mr-1">C.</strong> {{ q.option_c }}</span>
+                            </label>
+                            <label class="flex items-center p-3 rounded-lg border border-slate-200 bg-white hover:border-indigo-500 cursor-pointer transition">
+                                <input type="radio" name="q_{{ q.id }}" value="D" class="text-indigo-600 focus:ring-indigo-500 mr-2.5">
+                                <span class="font-medium text-slate-800"><strong class="text-indigo-600 mr-1">D.</strong> {{ q.option_d }}</span>
+                            </label>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Submit Button -->
+            <div class="mt-8 pt-6 border-t border-slate-200 flex items-center justify-between">
+                <span class="text-xs text-slate-400">All questions will be evaluated by the AI Assessment Engine.</span>
+                <button type="submit" id="submitAssessmentBtn" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-200 transition flex items-center gap-2">
+                    <i class="fa-solid fa-check-to-slot"></i> Submit & Compute AI Score
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ASSESSMENT RESULTS MODAL / SCORECARD (Shows after submit) -->
+    <div id="resultsCard" class="hidden bg-white rounded-2xl border border-slate-200 shadow-xl p-6 sm:p-8 space-y-6">
+        <div class="text-center pb-6 border-b border-slate-100">
+            <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto mb-3 shadow-inner">
+                <i class="fa-solid fa-award"></i>
+            </div>
+            <h2 class="text-2xl font-extrabold text-slate-900">AI Assessment Scorecard Generated!</h2>
+            <p class="text-xs text-slate-500 mt-1">Your response was processed and your student profile has been updated in the database.</p>
+        </div>
+
+        <!-- Overall Score Ring -->
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 text-center">
+            <div class="p-4 rounded-xl bg-indigo-50 border border-indigo-100">
+                <p class="text-xs text-indigo-700 font-semibold uppercase">Overall Readiness</p>
+                <p id="resOverall" class="text-3xl font-black text-indigo-600 mt-1">--%</p>
+            </div>
+            <div class="p-4 rounded-xl bg-blue-50 border border-blue-100">
+                <p class="text-xs text-blue-700 font-semibold uppercase">Technical Score</p>
+                <p id="resTech" class="text-3xl font-black text-blue-600 mt-1">--%</p>
+            </div>
+            <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-100">
+                <p class="text-xs text-emerald-700 font-semibold uppercase">Soft Skills Score</p>
+                <p id="resSoft" class="text-3xl font-black text-emerald-600 mt-1">--%</p>
+            </div>
+            <div class="p-4 rounded-xl bg-purple-50 border border-purple-100">
+                <p class="text-xs text-purple-700 font-semibold uppercase">Aptitude Score</p>
+                <p id="resApt" class="text-3xl font-black text-purple-600 mt-1">--%</p>
+            </div>
+        </div>
+
+        <!-- Strong Skills vs Skill Gaps -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="p-5 rounded-xl border border-emerald-200 bg-emerald-50/50">
+                <h4 class="text-xs font-bold text-emerald-900 uppercase tracking-wider flex items-center gap-1.5 mb-3">
+                    <i class="fa-solid fa-circle-check text-emerald-600"></i> Strong Skills (&ge;70%)
+                </h4>
+                <div id="strongSkillsList" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <div class="p-5 rounded-xl border border-rose-200 bg-rose-50/50">
+                <h4 class="text-xs font-bold text-rose-900 uppercase tracking-wider flex items-center gap-1.5 mb-3">
+                    <i class="fa-solid fa-triangle-exclamation text-rose-600"></i> Identified Skill Gaps (&lt;40%)
+                </h4>
+                <div id="missingSkillsList" class="flex flex-wrap gap-2"></div>
+            </div>
+        </div>
+
+        <!-- Action Links -->
+        <div class="pt-4 flex flex-wrap justify-end gap-3">
+            <a href="{{ url_for('student.dashboard') }}" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition">
+                Go to Dashboard
+            </a>
+            <a href="{{ url_for('student.jobs') }}" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-200 transition">
+                View Matching Jobs &rarr;
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+async function submitAssessment(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitAssessmentBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> AI Engine Evaluating...';
+
+    const cards = document.querySelectorAll('.question-card');
+    const answers = {};
+
+    cards.forEach(card => {
+        const qid = card.getAttribute('data-qid');
+        const selected = card.querySelector(`input[name="q_${qid}"]:checked`);
+        if (selected) {
+            answers[qid] = selected.value;
+        }
+    });
+
+    try {
+        const res = await fetch('/api/assessment/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ answers })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            const r = data.result;
+            document.getElementById('resOverall').innerText = `${r.overall_readiness}%`;
+            document.getElementById('resTech').innerText = `${r.technical_score}%`;
+            document.getElementById('resSoft').innerText = `${r.soft_skill_score}%`;
+            document.getElementById('resApt').innerText = `${r.aptitude_score}%`;
+
+            const strongDiv = document.getElementById('strongSkillsList');
+            strongDiv.innerHTML = (r.strong_skills && r.strong_skills.length > 0)
+                ? r.strong_skills.map(s => `<span class="px-2.5 py-1 rounded-lg bg-emerald-200/80 text-emerald-900 font-bold text-xs">${s}</span>`).join('')
+                : '<span class="text-xs text-slate-400">None identified yet.</span>';
+
+            const missingDiv = document.getElementById('missingSkillsList');
+            missingDiv.innerHTML = (r.missing_skills && r.missing_skills.length > 0)
+                ? r.missing_skills.map(s => `<span class="px-2.5 py-1 rounded-lg bg-rose-200/80 text-rose-900 font-bold text-xs">${s}</span>`).join('')
+                : '<span class="text-xs text-emerald-600 font-bold">No major skill gaps detected!</span>';
+
+            document.getElementById('assessmentRunnerCard').classList.add('hidden');
+            document.getElementById('resultsCard').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            showToast('AI Skill Assessment Evaluated and Stored!');
+        } else {
+            showToast(data.error || 'Evaluation failed', 'danger');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-check-to-slot"></i> Submit & Compute AI Score';
+        }
+    } catch (err) {
+        console.error(err);
+        showToast('Network error during evaluation', 'danger');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-check-to-slot"></i> Submit & Compute AI Score';
+    }
+}
+</script>
+{% endblock %}

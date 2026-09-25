@@ -1,0 +1,183 @@
+﻿{% extends 'base.html' %}
+{% block title %}Institutional Analytics Dashboard | Smart Academia-Industry Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <!-- Header Banner -->
+    <div class="bg-gradient-to-r from-emerald-900 via-teal-950 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/30 text-emerald-200 text-xs font-semibold mb-3">
+                <i class="fa-solid fa-university"></i> Member 5: College & Academic Analytics
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold">{{ college.college_name }}</h1>
+            <p class="text-xs text-emerald-200 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> {{ college.location }} &bull; Institutional Code: {{ college.code }}</p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+            <a href="{{ url_for('college.students_list') }}" class="px-5 py-2.5 rounded-xl bg-white text-emerald-950 font-bold text-xs hover:bg-emerald-50 shadow-md transition flex items-center gap-2">
+                <i class="fa-solid fa-user-graduate text-emerald-600"></i> Student Roster
+            </a>
+            <a href="{{ url_for('college.collaboration') }}" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition flex items-center gap-2">
+                <i class="fa-solid fa-handshake"></i> Industry FDPs & Training
+            </a>
+        </div>
+    </div>
+
+    <!-- STUDENT ANALYTICS METRIC CARDS -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div class="glass-card p-5">
+            <p class="text-xs text-slate-500 font-medium">Total Registered</p>
+            <p class="text-2xl font-black text-slate-900 mt-1">{{ total_students }}</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">Enrolled cohorts</p>
+        </div>
+
+        <div class="glass-card p-5">
+            <p class="text-xs text-slate-500 font-medium">Assessed Students</p>
+            <p class="text-2xl font-black text-indigo-600 mt-1">{{ assessed_count }}</p>
+            <p class="text-[11px] text-indigo-600 font-semibold mt-0.5"><i class="fa-solid fa-brain"></i> AI Evaluated</p>
+        </div>
+
+        <div class="glass-card p-5">
+            <p class="text-xs text-slate-500 font-medium">Average Skill Score</p>
+            <p class="text-2xl font-black text-emerald-600 mt-1">{{ avg_score }}%</p>
+            <p class="text-[11px] text-emerald-600 font-semibold mt-0.5">Campus benchmark</p>
+        </div>
+
+        <div class="glass-card p-5">
+            <p class="text-xs text-slate-500 font-medium">Placement Ready</p>
+            <p class="text-2xl font-black text-blue-600 mt-1">{{ placement_ready }}</p>
+            <p class="text-[11px] text-blue-600 font-semibold mt-0.5">&ge;70% Readiness Index</p>
+        </div>
+
+        <div class="glass-card p-5">
+            <p class="text-xs text-slate-500 font-medium">Internship Active</p>
+            <p class="text-2xl font-black text-purple-600 mt-1">{{ internship_participating }}</p>
+            <p class="text-[11px] text-purple-600 font-semibold mt-0.5">Industry Exposure</p>
+        </div>
+    </div>
+
+    <!-- CHARTS SECTION: SKILL ANALYTICS & SKILL GAPS -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Chart 1: Skill Distribution Bar Chart -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900">Student Skill Proficiency Analytics</h3>
+                    <p class="text-[11px] text-slate-500">Average student competency scores across core stacks</p>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200">
+                    Live Data
+                </span>
+            </div>
+            <div class="h-64">
+                <canvas id="skillBarChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Chart 2: Skill Gap Analysis (Most Missing Skills) -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900">Curriculum Skill-Gap Analysis</h3>
+                    <p class="text-[11px] text-slate-500">Skills most students lack (<span class="text-rose-600 font-semibold">Priority for Training & FDPs</span>)</p>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-800 border border-rose-200">
+                    Top Deficits
+                </span>
+            </div>
+
+            <!-- Top Missing Skills Ranked List -->
+            <div class="space-y-3 pt-2">
+                {% for sk, count in top_missing_skills %}
+                    <div>
+                        <div class="flex items-center justify-between text-xs font-bold mb-1">
+                            <span class="text-slate-800 flex items-center gap-2">
+                                <span class="w-5 h-5 rounded-full bg-rose-100 text-rose-800 flex items-center justify-center text-[10px] font-black">
+                                    {{ loop.index }}
+                                </span>
+                                {{ sk }}
+                            </span>
+                            <span class="text-rose-600 font-semibold">{{ count }} Students Deficient</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2">
+                            <div class="bg-rose-500 h-2 rounded-full" style="width: {{ (count / total_students * 100)|round if total_students else 60 }}%"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 leading-relaxed">
+                <i class="fa-solid fa-lightbulb text-amber-600 mr-1"></i>
+                <strong>Academic Action:</strong> Conduct special workshops in <strong>{{ top_missing_skills[0][0] if top_missing_skills else 'Cloud Computing' }}</strong> and <strong>{{ top_missing_skills[1][0] if top_missing_skills|length > 1 else 'Machine Learning' }}</strong> to raise student placement readiness.
+            </div>
+        </div>
+    </div>
+
+    <!-- INDUSTRY DEMAND BAROMETER SECTION -->
+    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
+            <div>
+                <h3 class="text-base font-bold text-slate-900">Real-Time Industry Skill Demand Barometer</h3>
+                <p class="text-xs text-slate-500">Automated aggregation of active employer job & internship postings</p>
+            </div>
+            <a href="{{ url_for('college.collaboration') }}" class="text-xs font-bold text-emerald-700 hover:underline">
+                Explore Industry Partnerships &rarr;
+            </a>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {% for item in industry_demand %}
+                <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50/60 flex flex-col justify-between">
+                    <div>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-black {{ item.badge_class }}">
+                            {{ item.level }} Demand
+                        </span>
+                        <h4 class="text-xs font-bold text-slate-900 mt-2">{{ item.skill }}</h4>
+                    </div>
+                    <p class="text-[10px] text-slate-500 mt-2 pt-2 border-t border-slate-200/60 font-semibold">
+                        {{ item.count }} Postings Active
+                    </p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const ctx = document.getElementById('skillBarChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: {{ skill_chart_data.labels | tojson }},
+            datasets: [{
+                label: 'Average Student Proficiency (%)',
+                data: {{ skill_chart_data.scores | tojson }},
+                backgroundColor: [
+                    'rgba(79, 70, 229, 0.85)',
+                    'rgba(16, 185, 129, 0.85)',
+                    'rgba(59, 130, 246, 0.85)',
+                    'rgba(245, 158, 11, 0.85)',
+                    'rgba(239, 68, 68, 0.85)',
+                    'rgba(168, 85, 247, 0.85)'
+                ],
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: { callback: v => v + '%' }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

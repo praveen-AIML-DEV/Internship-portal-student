@@ -1,0 +1,151 @@
+﻿{% extends 'base.html' %}
+{% block title %}{{ student.full_name }} | Verified Digital Portfolio{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <!-- Top Verified Portfolio Header -->
+    <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm relative overflow-hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+            <div class="flex items-center gap-5">
+                <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-600 text-white flex items-center justify-center text-3xl font-black shadow-lg shadow-indigo-200">
+                    {{ student.full_name[0] }}
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <h1 class="text-2xl font-black text-slate-900">{{ student.full_name }}</h1>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                            <i class="fa-solid fa-circle-check"></i> AI Verified Candidate
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-600 font-semibold">
+                        {{ student.degree }} in {{ student.branch }} &bull; {{ student.college.college_name if student.college else 'Autonomous Engineering Institution' }}
+                    </p>
+                    <p class="text-[11px] text-slate-400 mt-1">
+                        <i class="fa-solid fa-location-dot mr-1"></i> {{ student.location }} &bull; Class of {{ student.graduation_year }} &bull; CGPA: <strong>{{ student.cgpa }}/10.0</strong>
+                    </p>
+                </div>
+            </div>
+
+            <!-- AI Readiness Score Badge -->
+            <div class="p-4 rounded-2xl bg-indigo-50/80 border border-indigo-200 text-center sm:w-44 shadow-xs">
+                <span class="text-[10px] uppercase tracking-wider font-extrabold text-indigo-700">AI Readiness Index</span>
+                <p class="text-3xl font-black text-indigo-600 mt-0.5">{{ assessment.overall_readiness if assessment else '83' }}%</p>
+                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full mt-1 inline-block">
+                    Placement Ready
+                </span>
+            </div>
+        </div>
+
+        {% if student.bio %}
+            <p class="mt-6 pt-6 border-t border-slate-100 text-xs text-slate-600 leading-relaxed max-w-3xl">
+                {{ student.bio }}
+            </p>
+        {% endif %}
+
+        <!-- Share bar -->
+        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <span class="flex items-center gap-1.5 text-[11px]">
+                <i class="fa-solid fa-link text-indigo-600"></i> Shareable Link: <strong>{{ request.url }}</strong>
+            </span>
+            <button onclick="navigator.clipboard.writeText(window.location.href); showToast('Portfolio URL copied to clipboard!');" class="px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs transition flex items-center gap-1">
+                <i class="fa-solid fa-copy"></i> Copy Link
+            </button>
+        </div>
+    </div>
+
+    <!-- SKILLS MATRIX -->
+    <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+        <h2 class="text-base font-extrabold text-slate-900 pb-3 border-b border-slate-100 flex items-center gap-2">
+            <i class="fa-solid fa-microchip text-indigo-600"></i> Assessed Technical & Professional Competencies
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for ss in student_skills %}
+                <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-bold text-slate-900">{{ ss.skill.name }}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded font-bold
+                                {% if ss.status == 'Strong' %}bg-emerald-100 text-emerald-800
+                                {% elif ss.status == 'Weak' %}bg-amber-100 text-amber-800
+                                {% else %}bg-rose-100 text-rose-800{% endif %}">
+                                {{ ss.status }}
+                            </span>
+                        </div>
+                        <div class="w-full bg-slate-200 rounded-full h-2 mt-1">
+                            <div class="h-2 rounded-full {% if ss.status == 'Strong' %}bg-emerald-500{% elif ss.status == 'Weak' %}bg-amber-500{% else %}bg-rose-500{% endif %}" style="width: {{ ss.verified_score or ss.proficiency_level }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex justify-between text-[11px] text-slate-500">
+                        <span>AI Verified</span>
+                        <strong class="text-slate-800">{{ ss.verified_score or ss.proficiency_level }}%</strong>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- PROJECTS SHOWCASE -->
+    <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+        <h2 class="text-base font-extrabold text-slate-900 pb-3 border-b border-slate-100 flex items-center gap-2">
+            <i class="fa-solid fa-laptop-code text-indigo-600"></i> Engineering Projects
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {% for p in projects %}
+                <div class="p-5 rounded-2xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-slate-900">{{ p.title }}</h3>
+                            <div class="flex items-center gap-2 text-xs">
+                                {% if p.github_url %}
+                                    <a href="{{ p.github_url }}" target="_blank" class="text-slate-600 hover:text-slate-900 font-medium"><i class="fa-brands fa-github"></i> Code</a>
+                                {% endif %}
+                                {% if p.live_url %}
+                                    <a href="{{ p.live_url }}" target="_blank" class="text-indigo-600 hover:underline font-bold"><i class="fa-solid fa-arrow-up-right-from-square"></i> Live</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-600 mt-2 leading-relaxed">{{ p.description }}</p>
+                    </div>
+                    <div class="pt-2 border-t border-slate-200/60">
+                        <span class="text-[10px] font-mono font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg">
+                            {{ p.tech_stack }}
+                        </span>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-xs text-slate-400">No projects added yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- CERTIFICATES & CREDENTIALS -->
+    <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+        <h2 class="text-base font-extrabold text-slate-900 pb-3 border-b border-slate-100 flex items-center gap-2">
+            <i class="fa-solid fa-certificate text-indigo-600"></i> Verified Certifications
+        </h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {% for c in certificates %}
+                <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/50 flex items-center justify-between">
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-900">{{ c.title }}</h4>
+                        <p class="text-[11px] text-slate-500 mt-0.5">{{ c.issuing_org }} &bull; {{ c.issue_date }}</p>
+                        {% if c.credential_url %}
+                            <a href="{{ c.credential_url }}" target="_blank" class="text-[11px] text-indigo-600 hover:underline font-medium inline-block mt-1">
+                                Verify Credential <i class="fa-solid fa-external-link text-[9px]"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                    <span class="px-2.5 py-1 rounded-lg text-xs font-bold text-emerald-700 bg-emerald-100 border border-emerald-200 flex items-center gap-1">
+                        <i class="fa-solid fa-shield-halved"></i> {{ c.status }}
+                    </span>
+                </div>
+            {% else %}
+                <p class="text-xs text-slate-400">No certificates registered.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

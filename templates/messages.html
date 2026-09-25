@@ -1,0 +1,233 @@
+﻿{% extends 'base.html' %}
+{% block title %}Messages & Direct Inquiries | Smart Academia-Industry Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row h-[750px]">
+        
+        <!-- LEFT COLUMN: CONVERSATIONS LIST -->
+        <div class="w-full md:w-80 border-r border-slate-200 flex flex-col bg-slate-50/50">
+            <!-- Inbox Header -->
+            <div class="p-4 border-b border-slate-200 bg-white">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-comments text-indigo-600"></i> Direct Messages
+                    </h2>
+                    <span id="unreadTotalBadge" class="hidden px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white"></span>
+                </div>
+                <p class="text-xs text-slate-500 mt-0.5">Real-time messaging with recruiters & mentors</p>
+            </div>
+
+            <!-- Contacts / Start New Chat Dropdown -->
+            <div class="p-3 border-b border-slate-200 bg-white">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Start New Conversation</label>
+                <select id="newContactSelect" onchange="startChatWithSelected(this.value)" class="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500">
+                    <option value="">Select a contact...</option>
+                    {% if user_role == 'student' %}
+                        <optgroup label="Industry Employers">
+                            {% for c in companies %}
+                                <option value="{{ c.user_id }}" {% if target_uid == c.user_id %}selected{% endif %}>{{ c.company_name }} (Recruiter)</option>
+                            {% endfor %}
+                        </optgroup>
+                    {% else %}
+                        <optgroup label="Registered Candidates">
+                            {% for s in students %}
+                                <option value="{{ s.user_id }}" {% if target_uid == s.user_id %}selected{% endif %}>{{ s.full_name }} ({{ s.degree }})</option>
+                            {% endfor %}
+                        </optgroup>
+                        <optgroup label="Companies">
+                            {% for c in companies %}
+                                {% if c.user_id != current_uid %}
+                                    <option value="{{ c.user_id }}">{{ c.company_name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </optgroup>
+                    {% endif %}
+                </select>
+            </div>
+
+            <!-- Conversations List -->
+            <div id="conversationsContainer" class="flex-1 overflow-y-auto divide-y divide-slate-100 p-2 space-y-1">
+                <p class="text-xs text-slate-400 text-center py-8">Loading conversations...</p>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: ACTIVE CHAT TIMELINE -->
+        <div class="flex-1 flex flex-col bg-white">
+            <!-- Chat Active Header -->
+            <div id="activeChatHeader" class="p-4 border-b border-slate-200 flex items-center justify-between bg-white">
+                <div class="flex items-center gap-3">
+                    <div id="headerAvatar" class="w-10 h-10 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
+                        ?
+                    </div>
+                    <div>
+                        <h3 id="headerName" class="text-sm font-extrabold text-slate-900">Select a conversation</h3>
+                        <p id="headerRole" class="text-[11px] text-slate-400 font-medium">No active chat selected</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Encrypted Messaging
+                    </span>
+                </div>
+            </div>
+
+            <!-- Message Bubbles Scroll Area -->
+            <div id="messagesTimeline" class="flex-1 overflow-y-auto p-6 space-y-4 bg-slate-50/40">
+                <div class="text-center py-20 text-slate-400 text-xs">
+                    <i class="fa-solid fa-message-dots text-3xl text-slate-300 mb-2 block"></i>
+                    Select a contact from the left panel or start a new conversation to begin messaging.
+                </div>
+            </div>
+
+            <!-- Message Input Form -->
+            <div class="p-4 border-t border-slate-200 bg-white">
+                <form id="sendMessageForm" onsubmit="sendMessage(event)" class="flex items-center gap-2">
+                    <input type="hidden" id="activeRecipientId" value="{{ target_uid if target_uid else '' }}">
+                    <input type="text" id="messageInput" placeholder="Type your message here..." required class="flex-1 px-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                    <button type="submit" id="sendBtn" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-md shadow-indigo-200 transition flex items-center gap-1.5">
+                        <span>Send</span> <i class="fa-solid fa-paper-plane text-[10px]"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+let currentActivePartnerId = null;
+const CURRENT_USER_ID = {{ current_uid }};
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadConversations();
+    const preselect = document.getElementById('activeRecipientId').value;
+    if (preselect) {
+        openChat(parseInt(preselect));
+    }
+    // Poll for new messages every 6 seconds
+    setInterval(() => {
+        if (currentActivePartnerId) {
+            loadChatHistory(currentActivePartnerId, true);
+        }
+        loadConversations(true);
+    }, 6000);
+});
+
+async function loadConversations(isBackground = false) {
+    try {
+        const res = await fetch('/api/messages/conversations');
+        const list = await res.json();
+        const container = document.getElementById('conversationsContainer');
+
+        if (!list || list.length === 0) {
+            if (!isBackground) {
+                container.innerHTML = '<p class="text-xs text-slate-400 text-center py-8">No active chats. Start one above!</p>';
+            }
+            return;
+        }
+
+        container.innerHTML = list.map(c => `
+            <div onclick="openChat(${c.partner_id})" class="p-3 rounded-2xl cursor-pointer transition ${currentActivePartnerId === c.partner_id ? 'bg-indigo-50 border border-indigo-200' : 'hover:bg-slate-100/80 bg-white border border-slate-100'}">
+                <div class="flex items-center justify-between mb-1">
+                    <h4 class="text-xs font-bold text-slate-900 truncate max-w-[140px]">${c.partner_name}</h4>
+                    <span class="text-[10px] text-slate-400">${c.last_time || ''}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <p class="text-[11px] text-slate-500 truncate max-w-[170px]">${c.last_message}</p>
+                    ${c.unread_count > 0 ? `<span class="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-indigo-600 text-white">${c.unread_count}</span>` : ''}
+                </div>
+            </div>
+        `).join('');
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function openChat(otherId) {
+    currentActivePartnerId = otherId;
+    document.getElementById('activeRecipientId').value = otherId;
+    await loadChatHistory(otherId, false);
+    loadConversations(true);
+}
+
+function startChatWithSelected(uid) {
+    if (uid) {
+        openChat(parseInt(uid));
+    }
+}
+
+async function loadChatHistory(otherId, isPolling = false) {
+    try {
+        const res = await fetch(`/api/messages/history/${otherId}`);
+        const data = await res.json();
+        if (data.error) return;
+
+        document.getElementById('headerName').innerText = data.partner_name;
+        document.getElementById('headerRole').innerText = `Role: ${data.partner_role.toUpperCase()}`;
+        document.getElementById('headerAvatar').innerText = data.partner_name[0] || 'U';
+
+        const timeline = document.getElementById('messagesTimeline');
+        if (!data.messages || data.messages.length === 0) {
+            timeline.innerHTML = `<div class="text-center py-16 text-slate-400 text-xs">No prior messages with ${data.partner_name}. Say hello!</div>`;
+            return;
+        }
+
+        const shouldScroll = isPolling ? (timeline.scrollHeight - timeline.scrollTop <= timeline.clientHeight + 100) : true;
+
+        timeline.innerHTML = data.messages.map(m => {
+            const isMe = (m.sender_id === CURRENT_USER_ID);
+            return `
+                <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                    <div class="max-w-md px-4 py-2.5 rounded-2xl text-xs leading-relaxed shadow-xs ${
+                        isMe ? 'bg-indigo-600 text-white rounded-br-xs' : 'bg-white border border-slate-200 text-slate-800 rounded-bl-xs'
+                    }">
+                        ${m.content}
+                    </div>
+                    <span class="text-[10px] text-slate-400 mt-1 px-1">${m.created_at}</span>
+                </div>
+            `;
+        }).join('');
+
+        if (shouldScroll) {
+            timeline.scrollTop = timeline.scrollHeight;
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+async function sendMessage(e) {
+    e.preventDefault();
+    const recipientId = document.getElementById('activeRecipientId').value;
+    const input = document.getElementById('messageInput');
+    const content = input.value.trim();
+
+    if (!recipientId) {
+        showToast('Please select a recipient first', 'warning');
+        return;
+    }
+    if (!content) return;
+
+    input.value = '';
+
+    try {
+        const res = await fetch('/api/messages/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ recipient_id: parseInt(recipientId), content })
+        });
+        const data = await res.json();
+        if (data.success) {
+            loadChatHistory(currentActivePartnerId, false);
+            loadConversations(true);
+        } else {
+            showToast(data.error || 'Failed to send message', 'danger');
+        }
+    } catch (err) {
+        console.error(err);
+        showToast('Network error sending message', 'danger');
+    }
+}
+</script>
+{% endblock %}
