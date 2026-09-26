@@ -14,6 +14,8 @@ from routes.admin_routes import admin_bp
 from routes.api_routes import api_bp
 from routes.message_routes import message_bp
 from routes.ai_routes import ai_bp
+import tempfile
+
 
 def create_app():
     app = Flask(__name__)
@@ -21,6 +23,7 @@ def create_app():
     CORS(app)
 
     # Ensure upload directory exists
+    app.config['UPLOAD_FOLDER'] = os.path.join(tempfile.gettempdir(), 'uploads')
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
     # Register Blueprints
